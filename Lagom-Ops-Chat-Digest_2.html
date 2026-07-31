@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ops Chat Digest &middot; LAGÖM Village Resort</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none !important}
+:root{
+  --navy-900:#0c1626; --navy-800:#0f1b2d; --navy-700:#16263d; --navy-600:#1e344f; --navy-500:#2b466a;
+  --brass:#c9a86a; --brass-bright:#dcbd82; --brass-dim:#9c8250;
+  --paper:#f6f3ec; --paper-2:#efeae0;
+  --ink:#20272f; --ink-soft:#5a6472; --line:#e2dccf; --card:#ffffff;
+  --good:#4c9a72; --warn:#d9a441; --bad:#c05a4d;
+  --shadow:0 1px 3px rgba(12,22,38,.06),0 8px 28px rgba(12,22,38,.07);
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.topbar{background:linear-gradient(160deg,var(--navy-800),var(--navy-700));color:#fff;border-bottom:2px solid var(--brass)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:18px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px;margin-right:auto}
+.crest{width:44px;height:44px;border:1.5px solid var(--brass);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);color:var(--brass-bright);font-size:18px;letter-spacing:1px;flex-shrink:0}
+.brand-txt h1{font-family:var(--serif);font-weight:500;font-size:19px;letter-spacing:.4px;line-height:1.1}
+.brand-txt span{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--brass);opacity:.9}
+.nav{display:flex;gap:6px;background:rgba(255,255,255,.06);padding:5px;border-radius:10px}
+.nav button{background:none;border:none;color:#c8d2e0;font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.3px;padding:9px 18px;border-radius:7px;cursor:pointer;transition:.18s}
+.nav button:hover{color:#fff}
+.nav button.active{background:var(--brass);color:var(--navy-900)}
+
+.page{max-width:1180px;margin:0 auto;padding:30px 26px 70px}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.page-head .eyebrow{font-size:11px;letter-spacing:2.6px;text-transform:uppercase;color:var(--brass-dim);font-weight:700}
+.page-head h2{font-family:var(--serif);font-weight:500;font-size:28px;color:var(--navy-800);margin-top:3px}
+.page-head p{color:var(--ink-soft);font-size:13.5px;margin-top:5px;max-width:620px}
+
+.datebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.datebar select{border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:var(--sans);font-size:13px;background:#fff;color:var(--ink)}
+
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.chip{background:var(--card);border:1px solid var(--line);color:var(--ink-soft);font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:20px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--brass)}
+.chip.active{background:var(--navy-700);color:#fff;border-color:var(--navy-700)}
+.filterbar .spacer{margin-left:auto}
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--ink-soft);align-items:center;flex-wrap:wrap}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:-1px}
+
+.section{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);margin-bottom:22px}
+.section-head{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.section-head h3{font-family:var(--serif);font-weight:500;font-size:18px;color:var(--navy-800)}
+.section-head .hint{font-size:12px;color:var(--ink-soft)}
+.section-body{padding:22px}
+
+/* PULSE CHART — signature element */
+.pulse-wrap{padding:6px 4px 0}
+.pulse-caption{font-size:12px;color:var(--ink-soft);margin-top:10px;text-align:center}
+.pulse-caption b{color:var(--navy-700)}
+
+/* FEED */
+.feed{display:flex;flex-direction:column;gap:10px}
+.entry{display:flex;gap:14px;align-items:flex-start;padding:13px 16px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#fff,#fcfaf6)}
+.entry.flagged{border-color:#f0d4ce;background:linear-gradient(180deg,#fff,#fdf6f4)}
+.entry .dot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.entry .body{flex:1;min-width:0}
+.entry .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.entry .time{font-family:var(--serif);font-size:13px;color:var(--navy-700);font-weight:600}
+.entry .cat{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--brass-dim);font-weight:700}
+.entry .villa{font-size:11px;background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--navy-700);font-weight:700}
+.entry .staff{font-size:11.5px;color:var(--ink-soft)}
+.entry .txt{font-size:13.5px;color:var(--ink)}
+.entry .flagreason{font-size:12px;color:var(--bad);margin-top:4px;font-weight:600}
+.entry .openribbon{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--warn);font-weight:700;margin-top:4px}
+
+/* ALERTS */
+.alerts{display:flex;flex-direction:column;gap:9px}
+.alert{display:flex;gap:11px;align-items:flex-start;padding:11px 15px;border-radius:10px;font-size:13px;border:1px solid}
+.alert.bad{background:#fbf0ee;border-color:#f0d4ce;color:#8a3b31}
+.alert.warn{background:#fbf6ea;border-color:#f0e2c2;color:#8a6b1f}
+.alert.ok{background:#eef6f1;border-color:#cfe6d9;color:#2f6a4c}
+.alert .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.alert b{font-weight:700}
+
+/* IMPORT */
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{background:var(--paper-2);border:1px solid var(--line);color:var(--ink-soft);font-size:12.5px;font-weight:700;padding:8px 16px;border-radius:9px;cursor:pointer}
+.tab.active{background:var(--navy-700);color:#fff;border-color:var(--navy-700)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-bottom:6px}
+textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-family:var(--sans);font-size:13.5px;color:var(--ink);background:#fff;min-height:220px;resize:vertical}
+textarea:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px rgba(201,168,106,.15)}
+.filedrop{border:1.5px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--ink-soft);font-size:13px;cursor:pointer;transition:.15s}
+.filedrop:hover{border-color:var(--brass);color:var(--navy-700)}
+.filedrop input{display:none}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.thumb{width:84px;height:84px;border-radius:9px;overflow:hidden;border:1px solid var(--line);position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:3px;right:3px;background:rgba(12,22,38,.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1}
+
+.btn{border:none;border-radius:9px;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.3px;padding:10px 18px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--brass);color:var(--navy-900)}
+.btn-primary:hover{background:var(--brass-bright)}
+.btn-primary:disabled{opacity:.5;cursor:default}
+.btn-navy{background:var(--navy-700);color:#fff}
+.btn-navy:hover{background:var(--navy-600)}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--brass)}
+.btn-danger{background:#fff;border:1px solid #ecccc6;color:var(--bad)}
+.btn-danger:hover{background:#fbf0ee}
+.btn-sm{padding:7px 13px;font-size:12px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+.spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite}
+.spinner.dark{border:2px solid rgba(12,22,38,.2);border-top-color:var(--navy-800)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-note{font-size:12px;color:var(--ink-soft);margin-top:10px}
+
+.digest-body{font-size:14px;color:var(--ink);white-space:pre-wrap;line-height:1.7}
+.digest-body h4{font-family:var(--serif);color:var(--navy-800);font-size:16px;margin:16px 0 6px;font-weight:600}
+.digest-body h4:first-child{margin-top:0}
+
+.empty{text-align:center;padding:44px 20px;color:var(--ink-soft)}
+.empty h4{font-family:var(--serif);color:var(--navy-700);font-size:18px;margin-bottom:6px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy-800);color:#fff;padding:13px 22px;border-radius:11px;font-size:13.5px;font-weight:600;box-shadow:0 10px 40px rgba(0,0,0,.3);opacity:0;transition:.3s;z-index:100;border:1px solid var(--brass);display:flex;align-items:center;gap:9px}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast .tdot{width:8px;height:8px;border-radius:50%;background:var(--brass)}
+
+.footnote{text-align:center;font-size:11.5px;color:var(--ink-soft);margin-top:36px;letter-spacing:.3px}
+.footnote i{color:var(--brass-dim);font-style:normal}
+
+@media(max-width:720px){
+  .page-head{flex-direction:column;align-items:flex-start}
+  .entry{flex-direction:row}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="crest">LV</div>
+      <div class="brand-txt">
+        <h1>Ops Chat Digest</h1>
+        <span>Lagöm Village Resort</span>
+      </div>
+    </div>
+    <div class="nav">
+      <button data-page="feed" class="active">Live Feed</button>
+      <button data-page="digest">Daily Digest</button>
+      <button data-page="import">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-feed">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Live view</div>
+      <h2>Today's shift, at a glance</h2>
+      <p>Every update from the staff line, parsed and read for tone — so the flagged moments don't get buried in the routine ones.</p>
+    </div>
+    <div class="datebar">
+      <label style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-right:2px">Date</label>
+      <select id="feed-date"></select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>Shift pulse</h3>
+      <div class="hint">Tone across the day — dips mark flagged moments</div>
+    </div>
+    <div class="section-body">
+      <div class="pulse-wrap" id="pulse-chart"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>Needs your attention</h3>
+      <div class="hint">Flagged tone + open items, newest first</div>
+    </div>
+    <div class="section-body">
+      <div class="alerts" id="alerts-list"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h3>Full feed</h3>
+      <div class="hint">Chronological — filter by area or tone</div>
+    </div>
+    <div class="section-body">
+      <div class="filterbar" id="filterbar">
+        <!-- chips injected -->
+        <div class="spacer"></div>
+        <div class="legend">
+          <span><i style="background:var(--good)"></i>Positive</span>
+          <span><i style="background:var(--brass-dim)"></i>Routine</span>
+          <span><i style="background:var(--bad)"></i>Flagged</span>
+        </div>
+      </div>
+      <div class="feed" id="feed-list"></div>
+    </div>
+  </div>
+  <div class="footnote"><i>Lagöm Village Resort</i> &middot; Ops Chat Digest &middot; entries stay on this device</div>
+</div>
+
+<div class="page" id="page-digest" hidden>
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">End of day</div>
+      <h2>Daily digest</h2>
+      <p>A short written readout of the day — how it went, what's flagged, what's still open — built from everything logged in the feed.</p>
+    </div>
+    <div class="datebar">
+      <label style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-right:2px">Date</label>
+      <select id="digest-date"></select>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-head">
+      <h3 id="digest-title">Digest</h3>
+      <button class="btn btn-primary btn-sm" id="gen-digest-btn">Generate digest</button>
+    </div>
+    <div class="section-body" id="digest-body-wrap">
+      <div class="empty" id="digest-empty">
+        <h4>No digest yet for this day</h4>
+        <p>Import some chat first, then generate a digest.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footnote"><i>Lagöm Village Resort</i> &middot; Ops Chat Digest &middot; entries stay on this device</div>
+</div>
+
+<div class="page" id="page-import" hidden>
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Bring in chat</div>
+      <h2>Import from the staff line</h2>
+      <p>Paste an exported chat transcript, or drop in screenshots — either way it gets read, sorted by area, and checked for tone.</p>
+    </div>
+    <div class="datebar">
+      <label style="font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-right:2px">Log to date</label>
+      <select id="import-date"></select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-body">
+      <div class="tabs">
+        <div class="tab active" data-tab="text">Paste text</div>
+        <div class="tab" data-tab="images">Screenshots</div>
+        <div class="tab" data-tab="json">Paste from Claude</div>
+      </div>
+
+      <div id="tab-text">
+        <div class="field">
+          <label>Pasted chat text</label>
+          <textarea id="text-input" placeholder="Paste the exported chat text here — names, timestamps, and messages, in whatever order LINE gives you."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="process-text-btn">Process text</button>
+        </div>
+      </div>
+
+      <div id="tab-images" hidden>
+        <div class="field">
+          <label>Screenshot images</label>
+          <div class="filedrop" id="filedrop">
+            Click to choose screenshots, or drag them here<br>(you can select several at once)
+            <input type="file" id="file-input" accept="image/*" multiple>
+          </div>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="process-images-btn">Process screenshots</button>
+        </div>
+      </div>
+
+      <div id="tab-json" hidden>
+        <div class="field">
+          <label>Entries JSON from Claude</label>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px">
+            Use this if you're running this file on its own (not inside a Claude conversation) — the automatic reading needs a live connection this page doesn't have on its own.
+            In a chat with Claude, paste your chat text and ask: <i style="color:var(--navy-700)">"Convert this into the Ops Chat Digest entries JSON format"</i>.
+            Paste the JSON array it gives you back below — no internet call needed here, this just reads it directly.
+          </p>
+          <textarea id="json-input" placeholder='[{"time":"09:04","staff":"Aom","category":"Breakfast","villa":"A7","summary":"Served breakfast","tone":"routine","flag_reason":null,"open_item":false}, ...]'></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="process-json-btn">Load entries</button>
+        </div>
+      </div>
+
+      <div class="progress-note" id="progress-note" hidden></div>
+    </div>
+  </div>
+  <div class="footnote"><i>Lagöm Village Resort</i> &middot; Ops Chat Digest &middot; entries stay on this device</div>
+</div>
+
+<div class="toast" id="toast"><span class="tdot"></span><span id="toast-msg"></span></div>
+
+
+<script>
+/* ================= STATE ================= */
+const CATS = ["Breakfast","Housekeeping","F&B","Attendance","Turndown","Spa/Booking","Guest Feedback","Other"];
+const CAT_COLOR = {
+  "Breakfast":"#c9a86a","Housekeeping":"#2b466a","F&B":"#9c5a3c","Attendance":"#5a6472",
+  "Turndown":"#5c7a5f","Spa/Booking":"#7a5c9c","Guest Feedback":"#c05a4d","Other":"#9c8250"
+};
+const TONE_COLOR = { positive:"#4c9a72", routine:"#9c8250", flagged:"#c05a4d" };
+const TONE_Y = { positive:1, routine:0, flagged:-1 };
+
+let todayStr = new Date().toISOString().slice(0,10);
+let state = {
+  page: "feed",
+  entriesByDate: {},      // date -> array of entries
+  digestByDate: {},       // date -> digest text
+  knownDates: new Set([todayStr]),
+  feedDate: todayStr,
+  digestDate: todayStr,
+  importDate: todayStr,
+  activeCatFilter: null,
+  activeToneFilter: null,
+  importTab: "text",
+  images: []              // {name, dataUrl, base64, mediaType}
+};
+
+/* ================= STORAGE ================= */
+async function loadDate(date){
+  if(state.entriesByDate[date]) return state.entriesByDate[date];
+  try{
+    const r = await window.storage.get('entries:'+date, false);
+    const arr = r ? JSON.parse(r.value) : [];
+    state.entriesByDate[date] = arr;
+    return arr;
+  }catch(e){
+    state.entriesByDate[date] = [];
+    return [];
+  }
+}
+async function saveDate(date, arr){
+  state.entriesByDate[date] = arr;
+  try{
+    await window.storage.set('entries:'+date, JSON.stringify(arr), false);
+  }catch(e){ showToast("Couldn't save — try again"); }
+}
+async function loadDigest(date){
+  if(state.digestByDate[date] !== undefined) return state.digestByDate[date];
+  try{
+    const r = await window.storage.get('digest:'+date, false);
+    const v = r ? r.value : null;
+    state.digestByDate[date] = v;
+    return v;
+  }catch(e){ state.digestByDate[date] = null; return null; }
+}
+async function saveDigest(date, text){
+  state.digestByDate[date] = text;
+  try{ await window.storage.set('digest:'+date, text, false); }catch(e){ showToast("Couldn't save digest"); }
+}
+async function refreshKnownDates(){
+  try{
+    const r = await window.storage.list('entries:', false);
+    if(r && r.keys){
+      r.keys.forEach(k=>state.knownDates.add(k.replace('entries:','')));
+    }
+    state.storageAvailable = true;
+  }catch(e){
+    state.storageAvailable = false;
+  }
+  state.knownDates.add(todayStr);
+}
+function maybeShowStorageWarning(){
+  if(state.storageAvailable === false && !document.getElementById('storage-warning')){
+    const banner = document.createElement('div');
+    banner.id = 'storage-warning';
+    banner.style.cssText = 'max-width:1180px;margin:16px auto 0;padding:0 26px';
+    banner.innerHTML = `<div class="alert warn" style="border-radius:10px"><span class="dot" style="background:var(--warn)"></span><span><b>Running standalone</b> — entries you add now will only last this browser tab session and won't be saved for next time. Use the "Paste from Claude" import option, or open this tool from inside a Claude conversation for full saving.</span></div>`;
+    document.querySelector('.topbar').insertAdjacentElement('afterend', banner);
+  }
+}
+
+/* ================= AI CALLS ================= */
+async function callClaude(messages){
+  let resp;
+  try{
+    resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages
+      })
+    });
+  }catch(networkErr){
+    throw new Error("Network request failed — " + (networkErr.message || "check your connection"));
+  }
+  let data;
+  const rawBody = await resp.text();
+  try{
+    data = JSON.parse(rawBody);
+  }catch(parseErr){
+    throw new Error(`Server returned a non-JSON response (status ${resp.status}): ${rawBody.slice(0,180)}`);
+  }
+  if(!resp.ok){
+    const msg = (data && data.error && data.error.message) ? data.error.message : `request failed with status ${resp.status}`;
+    throw new Error(msg);
+  }
+  const texts = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  return texts;
+}
+
+const EXTRACT_INSTRUCTIONS = `You are extracting structured operational log entries from a hotel front-desk / villa staff group chat (Lagöm Village Resort, a jungle villa resort in Thailand, villas labeled A1-A7, messages often in Thai with English mixed in).
+
+For each distinct staff update or message you can identify, output one JSON object with exactly these fields:
+- "time": the clock time shown near the message, format "HH:MM" (24hr), or null if not visible
+- "staff": the sender's display name as shown, or null
+- "category": one of "Breakfast","Housekeeping","F&B","Attendance","Turndown","Spa/Booking","Guest Feedback","Other"
+- "villa": a villa label like "A5" if mentioned, else null
+- "summary": a short plain-English paraphrase of what happened, under 15 words, in your own words (never quote verbatim)
+- "tone": one of "positive" (guest delight, smooth extra service), "routine" (normal operational confirmation), "flagged" (guest frustration, complaint, delay, unresolved problem, anything needing manager attention)
+- "flag_reason": if tone is "flagged", a short phrase (under 8 words) explaining why; otherwise null
+- "open_item": true if this represents a task or guest request still unresolved / pending follow-up, else false
+
+Respond with ONLY a raw JSON array of these objects — no markdown code fences, no commentary, no explanation text before or after.`;
+
+async function extractFromText(text){
+  const msgs = [{ role:"user", content: EXTRACT_INSTRUCTIONS + "\n\nCHAT TEXT:\n" + text }];
+  const raw = await callClaude(msgs);
+  return parseEntriesJson(raw);
+}
+async function extractFromImage(base64, mediaType){
+  const msgs = [{
+    role:"user",
+    content: [
+      { type:"image", source:{ type:"base64", media_type: mediaType, data: base64 } },
+      { type:"text", text: EXTRACT_INSTRUCTIONS + "\n\nRead every visible chat bubble in this screenshot, in order from top to bottom." }
+    ]
+  }];
+  const raw = await callClaude(msgs);
+  return parseEntriesJson(raw);
+}
+function parseEntriesJson(raw){
+  let cleaned = raw.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  try{
+    const arr = JSON.parse(cleaned);
+    if(!Array.isArray(arr)) return [];
+    return arr.map(e=>({
+      time: e.time || null,
+      staff: e.staff || null,
+      category: CATS.includes(e.category) ? e.category : "Other",
+      villa: e.villa || null,
+      summary: e.summary || "",
+      tone: ["positive","routine","flagged"].includes(e.tone) ? e.tone : "routine",
+      flag_reason: e.flag_reason || null,
+      open_item: !!e.open_item
+    }));
+  }catch(err){ return []; }
+}
+
+function chunkText(text, maxLen){
+  const lines = text.split("\n");
+  const chunks = []; let cur = "";
+  for(const line of lines){
+    if((cur+line).length > maxLen && cur.length>0){ chunks.push(cur); cur=""; }
+    cur += line + "\n";
+  }
+  if(cur.trim()) chunks.push(cur);
+  return chunks.length ? chunks : [text];
+}
+
+/* ================= IMPORT: TEXT ================= */
+document.getElementById('process-text-btn').addEventListener('click', async ()=>{
+  const text = document.getElementById('text-input').value.trim();
+  if(!text){ showToast("Paste some chat text first"); return; }
+  const btn = document.getElementById('process-text-btn');
+  const note = document.getElementById('progress-note');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Processing…';
+  note.hidden = false;
+  const chunks = chunkText(text, 1400);
+  let all = [];
+  try{
+    for(let i=0;i<chunks.length;i++){
+      note.textContent = `Reading chunk ${i+1} of ${chunks.length}…`;
+      const entries = await extractFromText(chunks[i]);
+      all = all.concat(entries);
+    }
+    const date = document.getElementById('import-date').value || state.importDate;
+    const existing = await loadDate(date);
+    await saveDate(date, existing.concat(all));
+    showToast(`Added ${all.length} entries to ${date}`);
+    document.getElementById('text-input').value = "";
+    goToPage('feed'); state.feedDate = date; syncDateSelects(); renderFeed();
+  }catch(e){
+    showToast("Couldn't process that text — " + (e.message || "unknown error"));
+  }finally{
+    btn.disabled = false; btn.innerHTML = 'Process text';
+    note.hidden = true;
+  }
+});
+
+/* ================= IMPORT: IMAGES ================= */
+const filedrop = document.getElementById('filedrop');
+const fileInput = document.getElementById('file-input');
+filedrop.addEventListener('click', ()=>fileInput.click());
+filedrop.addEventListener('dragover', e=>{e.preventDefault(); filedrop.style.borderColor='var(--brass)';});
+filedrop.addEventListener('drop', e=>{
+  e.preventDefault();
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', ()=>handleFiles(fileInput.files));
+
+function handleFiles(fileList){
+  Array.from(fileList).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      downscaleImage(reader.result, 1400, 0.85).then(({dataUrl, base64})=>{
+        state.images.push({ name:file.name, dataUrl, base64, mediaType:'image/jpeg' });
+        renderThumbs();
+      }).catch(()=>{
+        showToast(`Couldn't read ${file.name} — try a different image`);
+      });
+    };
+    reader.onerror = ()=>showToast(`Couldn't read ${file.name}`);
+    reader.readAsDataURL(file);
+  });
+}
+// Downscales + re-encodes as JPEG so large phone screenshots (often several MB, sometimes
+// in HEIC/WEBP) don't fail the upload — long screenshots (like chat exports) are extra tall,
+// so we cap by width and let height scale, rather than capping the longest side.
+function downscaleImage(srcDataUrl, maxWidth, quality){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve({ dataUrl, base64: dataUrl.split(',')[1] });
+      }catch(err){ reject(err); }
+    };
+    img.onerror = reject;
+    img.src = srcDataUrl;
+  });
+}
+function renderThumbs(){
+  const wrap = document.getElementById('thumbs');
+  wrap.innerHTML = state.images.map((img,i)=>`
+    <div class="thumb">
+      <img src="${img.dataUrl}" alt="">
+      <button data-i="${i}" class="remove-thumb">×</button>
+    </div>`).join('');
+  wrap.querySelectorAll('.remove-thumb').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.images.splice(+b.dataset.i,1); renderThumbs(); });
+  });
+}
+
+document.getElementById('process-images-btn').addEventListener('click', async ()=>{
+  if(state.images.length===0){ showToast("Add at least one screenshot first"); return; }
+  const btn = document.getElementById('process-images-btn');
+  const note = document.getElementById('progress-note');
+  btn.disabled = true; note.hidden = false;
+  let all = [];
+  let failures = [];
+  for(let i=0;i<state.images.length;i++){
+    btn.innerHTML = '<span class="spinner"></span> Processing…';
+    note.textContent = `Reading screenshot ${i+1} of ${state.images.length}…`;
+    try{
+      const entries = await extractFromImage(state.images[i].base64, state.images[i].mediaType);
+      all = all.concat(entries);
+    }catch(e){
+      failures.push({ name: state.images[i].name || `image ${i+1}`, message: e.message || 'unknown error' });
+    }
+  }
+  if(all.length > 0){
+    const date = document.getElementById('import-date').value || state.importDate;
+    const existing = await loadDate(date);
+    await saveDate(date, existing.concat(all));
+    state.images = []; renderThumbs();
+    goToPage('feed'); state.feedDate = date; syncDateSelects(); renderFeed();
+  }
+  if(failures.length===0){
+    showToast(`Added ${all.length} entries to ${document.getElementById('import-date').value || state.importDate}`);
+  }else if(all.length===0){
+    showToast(`Couldn't read any screenshots — ${failures[0].message}`);
+  }else{
+    showToast(`Added ${all.length} entries — ${failures.length} screenshot(s) failed: ${failures[0].message}`);
+  }
+  btn.disabled = false; btn.innerHTML = 'Process screenshots';
+  note.hidden = true;
+});
+
+/* tabs */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    state.importTab = t.dataset.tab;
+    document.getElementById('tab-text').hidden = state.importTab!=='text';
+    document.getElementById('tab-images').hidden = state.importTab!=='images';
+    document.getElementById('tab-json').hidden = state.importTab!=='json';
+  });
+});
+
+/* ================= IMPORT: MANUAL JSON (no network needed) ================= */
+document.getElementById('process-json-btn').addEventListener('click', async ()=>{
+  const raw = document.getElementById('json-input').value.trim();
+  if(!raw){ showToast("Paste the JSON Claude gave you first"); return; }
+  let cleaned = raw.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  let arr;
+  try{
+    arr = JSON.parse(cleaned);
+    if(!Array.isArray(arr)) throw new Error("not an array");
+  }catch(e){
+    showToast("That doesn't look like valid entries JSON — check it was copied in full");
+    return;
+  }
+  const entries = arr.map(e=>({
+    time: e.time || null,
+    staff: e.staff || null,
+    category: CATS.includes(e.category) ? e.category : "Other",
+    villa: e.villa || null,
+    summary: e.summary || "",
+    tone: ["positive","routine","flagged"].includes(e.tone) ? e.tone : "routine",
+    flag_reason: e.flag_reason || null,
+    open_item: !!e.open_item
+  }));
+  const date = document.getElementById('import-date').value || state.importDate;
+  const existing = await loadDate(date);
+  await saveDate(date, existing.concat(entries));
+  showToast(`Added ${entries.length} entries to ${date}`);
+  document.getElementById('json-input').value = "";
+  goToPage('feed'); state.feedDate = date; syncDateSelects(); renderFeed();
+});
+
+/* ================= NAV ================= */
+document.querySelectorAll('.nav button').forEach(b=>{
+  b.addEventListener('click', ()=>goToPage(b.dataset.page));
+});
+function goToPage(page){
+  state.page = page;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
+  ['feed','digest','import'].forEach(p=>{
+    document.getElementById('page-'+p).hidden = (p!==page);
+  });
+  if(page==='feed') renderFeed();
+  if(page==='digest') renderDigestPage();
+}
+
+/* ================= DATE SELECTS ================= */
+function syncDateSelects(){
+  const dates = Array.from(state.knownDates).sort().reverse();
+  [['feed-date','feedDate'],['digest-date','digestDate'],['import-date','importDate']].forEach(([id,key])=>{
+    const sel = document.getElementById(id);
+    sel.innerHTML = dates.map(d=>`<option value="${d}" ${d===state[key]?'selected':''}>${formatDate(d)}</option>`).join('');
+  });
+}
+function formatDate(d){
+  const dt = new Date(d+'T00:00:00');
+  return dt.toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric'}) + (d===todayStr?' (today)':'');
+}
+document.getElementById('feed-date').addEventListener('change', e=>{ state.feedDate = e.target.value; renderFeed(); });
+document.getElementById('digest-date').addEventListener('change', e=>{ state.digestDate = e.target.value; renderDigestPage(); });
+document.getElementById('import-date').addEventListener('change', e=>{ state.importDate = e.target.value; });
+
+/* ================= FEED RENDER ================= */
+async function renderFeed(){
+  const date = state.feedDate;
+  const entries = (await loadDate(date)).slice().sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  renderPulse(entries);
+  renderAlerts(entries);
+  renderFilterbar(entries);
+  renderFeedList(entries);
+}
+function renderPulse(entries){
+  const wrap = document.getElementById('pulse-chart');
+  if(entries.length===0){
+    wrap.innerHTML = `<div class="empty"><h4>Nothing logged yet</h4><p>Import chat for this day to see the shift's pulse.</p></div>`;
+    return;
+  }
+  const timed = entries.filter(e=>e.time);
+  const w = 1080, h = 160, pad = 30;
+  const toMin = t=>{ const [hh,mm]=t.split(':').map(Number); return hh*60+mm; };
+  const source = timed.length ? timed : entries.map((e,i)=>({...e, time: `${6+i}:00`}));
+  const minT = Math.min(...source.map(e=>toMin(e.time)));
+  const maxT = Math.max(...source.map(e=>toMin(e.time)));
+  const span = Math.max(maxT-minT, 60);
+  const x = t => pad + ( (toMin(t)-minT) / span ) * (w-2*pad);
+  const y = tone => (h/2) - (TONE_Y[tone] * (h/2-30));
+  let points = source.map(e=>`${x(e.time)},${y(e.tone)}`).join(' ');
+  let dots = source.map(e=>`<circle cx="${x(e.time)}" cy="${y(e.tone)}" r="5" fill="${TONE_COLOR[e.tone]}" stroke="#fff" stroke-width="1.5"/>`).join('');
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block">
+    <line x1="${pad}" y1="${h/2}" x2="${w-pad}" y2="${h/2}" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 4"/>
+    <polyline points="${points}" fill="none" stroke="var(--brass-dim)" stroke-width="2"/>
+    ${dots}
+  </svg>`;
+  wrap.innerHTML = svg;
+  const flaggedCount = entries.filter(e=>e.tone==='flagged').length;
+  const openCount = entries.filter(e=>e.open_item).length;
+  const cap = document.createElement('div');
+  cap.className = 'pulse-caption';
+  cap.innerHTML = flaggedCount===0
+    ? `<b>Calm shift</b> — ${entries.length} updates logged, nothing flagged.`
+    : `<b>${flaggedCount} flagged moment${flaggedCount>1?'s':''}</b> out of ${entries.length} updates${openCount?`, ${openCount} still open`:''}.`;
+  wrap.appendChild(cap);
+}
+function renderAlerts(entries){
+  const wrap = document.getElementById('alerts-list');
+  const flagged = entries.filter(e=>e.tone==='flagged');
+  const open = entries.filter(e=>e.open_item && e.tone!=='flagged');
+  if(flagged.length===0 && open.length===0){
+    wrap.innerHTML = `<div class="alert ok"><span class="dot" style="background:var(--good)"></span><span>All quiet — nothing flagged and no open items for this day.</span></div>`;
+    return;
+  }
+  let html = '';
+  flagged.forEach(e=>{
+    html += `<div class="alert bad"><span class="dot" style="background:var(--bad)"></span><span>${e.time?`<b>${e.time}</b> — `:''}${e.villa?`<b>${e.villa}</b>: `:''}${escapeHtml(e.summary)}${e.flag_reason?` <i style="color:#8a3b31">(${escapeHtml(e.flag_reason)})</i>`:''}</span></div>`;
+  });
+  open.forEach(e=>{
+    html += `<div class="alert warn"><span class="dot" style="background:var(--warn)"></span><span>${e.time?`<b>${e.time}</b> — `:''}${e.villa?`<b>${e.villa}</b>: `:''}${escapeHtml(e.summary)} <i style="color:#8a6b1f">(open item)</i></span></div>`;
+  });
+  wrap.innerHTML = html;
+}
+function renderFilterbar(entries){
+  const bar = document.getElementById('filterbar');
+  const cats = CATS.filter(c=>entries.some(e=>e.category===c));
+  let html = `<div class="chip ${state.activeCatFilter===null?'active':''}" data-cat="__all">All areas</div>`;
+  html += cats.map(c=>`<div class="chip ${state.activeCatFilter===c?'active':''}" data-cat="${c}">${c}</div>`).join('');
+  bar.querySelectorAll('.chip').forEach(el=>el.remove());
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  const spacer = bar.querySelector('.spacer');
+  Array.from(tempDiv.children).forEach(ch=>bar.insertBefore(ch, spacer));
+  bar.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      state.activeCatFilter = chip.dataset.cat==='__all' ? null : chip.dataset.cat;
+      renderFeed();
+    });
+  });
+}
+function renderFeedList(entries){
+  const wrap = document.getElementById('feed-list');
+  let filtered = entries;
+  if(state.activeCatFilter) filtered = filtered.filter(e=>e.category===state.activeCatFilter);
+  if(filtered.length===0){
+    wrap.innerHTML = `<div class="empty"><h4>No entries</h4><p>Nothing logged yet for this filter — try Import to bring in chat, or clear the filter.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = filtered.map(e=>`
+    <div class="entry ${e.tone==='flagged'?'flagged':''}">
+      <span class="dot" style="background:${TONE_COLOR[e.tone]}"></span>
+      <div class="body">
+        <div class="meta">
+          ${e.time?`<span class="time">${e.time}</span>`:''}
+          <span class="cat">${e.category}</span>
+          ${e.villa?`<span class="villa">${e.villa}</span>`:''}
+          ${e.staff?`<span class="staff">${escapeHtml(e.staff)}</span>`:''}
+        </div>
+        <div class="txt">${escapeHtml(e.summary)}</div>
+        ${e.flag_reason?`<div class="flagreason">⚑ ${escapeHtml(e.flag_reason)}</div>`:''}
+        ${e.open_item?`<div class="openribbon">Open item</div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ================= DIGEST PAGE ================= */
+async function renderDigestPage(){
+  const date = state.digestDate;
+  document.getElementById('digest-title').textContent = `Digest — ${formatDate(date)}`;
+  const digest = await loadDigest(date);
+  const wrap = document.getElementById('digest-body-wrap');
+  if(!digest){
+    wrap.innerHTML = `<div class="empty" id="digest-empty"><h4>No digest yet for this day</h4><p>Import some chat first, then generate a digest.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="digest-body">${formatDigestHtml(digest)}</div>`;
+}
+function formatDigestHtml(text){
+  const escaped = escapeHtml(text);
+  return escaped.replace(/^(.+):$/gm, '<h4>$1</h4>').replace(/\n/g,'<br>');
+}
+document.getElementById('gen-digest-btn').addEventListener('click', async ()=>{
+  const date = state.digestDate;
+  const entries = await loadDate(date);
+  if(entries.length===0){ showToast("Nothing logged for this day yet"); return; }
+  const btn = document.getElementById('gen-digest-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner dark"></span> Writing…';
+  const summaryLines = entries.map(e=>`[${e.time||'--:--'}] ${e.category}${e.villa?` (${e.villa})`:''} — ${e.summary}${e.tone==='flagged'?` [FLAGGED: ${e.flag_reason||'concern noted'}]`:''}${e.open_item?' [OPEN ITEM]':''}`).join('\n');
+  const prompt = `You are writing a concise end-of-shift digest for the Resort Manager of Lagöm Village Resort, based on structured log entries from the staff group chat below.
+
+Write, in plain text with short section labels ending in a colon on their own line (e.g. "Overview:"), in this order:
+Overview: 3-4 sentences on how the shift went overall and its general tone.
+Flagged issues: a bullet list (use "- ") of anything flagged, with villa and why it matters. Write "None today." if there are none.
+Open items: a bullet list (use "- ") of unresolved tasks/requests still pending. Write "None today." if there are none.
+Tone read: one sentence summing up the day's overall tone.
+
+Log entries:
+${summaryLines}`;
+  try{
+    const text = await callClaude([{role:"user", content: prompt}]);
+    await saveDigest(date, text.trim());
+    renderDigestPage();
+  }catch(e){
+    showToast("Couldn't generate the digest — try again");
+  }finally{
+    btn.disabled = false; btn.innerHTML = 'Generate digest';
+  }
+});
+
+/* ================= TOAST ================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+/* ================= INIT ================= */
+(async function init(){
+  await refreshKnownDates();
+  maybeShowStorageWarning();
+  syncDateSelects();
+  await renderFeed();
+})();
+</script>
+</body>
+</html>
